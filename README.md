@@ -10,7 +10,7 @@ Add this manifest URL to Jellyfin:
 https://raw.githubusercontent.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/main/manifest.json
 ```
 
-1. Dashboard → Plugins → Repositories → **+**
+1. Dashboard → Catalog → Repositories → **+**
 2. Paste the URL above
 3. Go to Catalog and install **Ntfy Notifier**
 4. Restart Jellyfin
