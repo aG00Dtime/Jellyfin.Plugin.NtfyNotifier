@@ -65,18 +65,29 @@ namespace Jellyfin.Plugin.NtfyNotifier
 
             var config = Plugin.Instance.Configuration;
 
+            // Only process actual media items
+            bool isMovie = item is Movie;
+            bool isEpisode = item is Episode;
+            bool isMusic = item is Audio || item is MusicAlbum;
+
+            // Ignore if not a media type we care about
+            if (!isMovie && !isEpisode && !isMusic)
+            {
+                return;
+            }
+
             // Check if notifications are enabled for this media type
-            if (item is Movie && !config.EnableMovieNotifications)
+            if (isMovie && !config.EnableMovieNotifications)
             {
                 return;
             }
             
-            if (item is Episode && !config.EnableSeriesNotifications)
+            if (isEpisode && !config.EnableSeriesNotifications)
             {
                 return;
             }
             
-            if (item is Audio && !config.EnableMusicNotifications)
+            if (isMusic && !config.EnableMusicNotifications)
             {
                 return;
             }
