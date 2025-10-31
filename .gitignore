@@ -39,3 +39,6 @@ artifacts/
 # macOS
 .DS_Store
 
+# Cursor AI files
+.cursor/
+
