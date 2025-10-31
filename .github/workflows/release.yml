@@ -1,0 +1,104 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Create ZIP
+      run: |
+        cd bin/Release/net8.0
+        zip -j Jellyfin.Plugin.NtfyNotifier.zip Jellyfin.Plugin.NtfyNotifier.dll
+        cd ../../..
+
+    - name: Calculate checksum
+      id: checksum
+      run: |
+        CHECKSUM=$(md5sum bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.zip | awk '{print $1}')
+        echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+        echo "Checksum: $CHECKSUM"
+
+    - name: Get version from tag
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Update manifest.json
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        CHECKSUM=${{ steps.checksum.outputs.checksum }}
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        
+        # Update manifest with new version
+        cat > manifest.json << EOF
+        [
+          {
+            "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "name": "Ntfy Notifier",
+            "description": "Send notifications to ntfy when new media is added to your Jellyfin library",
+            "overview": "Get instant notifications via ntfy.sh when movies, TV shows, or music are added",
+            "owner": "davidhenry",
+            "category": "Notifications",
+            "versions": [
+              {
+                "version": "$VERSION.0",
+                "changelog": "Release $VERSION",
+                "targetAbi": "10.9.0.0",
+                "sourceUrl": "https://github.com/${{ github.repository }}/releases/download/v$VERSION/Jellyfin.Plugin.NtfyNotifier.zip",
+                "checksum": "$CHECKSUM",
+                "timestamp": "$TIMESTAMP"
+              }
+            ]
+          }
+        ]
+        EOF
+
+    - name: Commit and push manifest.json
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add manifest.json
+        git commit -m "Update manifest.json for version ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+        git push origin HEAD:main || echo "Nothing to push"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.zip
+        body: |
+          ## Jellyfin Ntfy Notifier v${{ steps.version.outputs.version }}
+          
+          ### Installation
+          Add this repository to Jellyfin:
+          ```
+          https://raw.githubusercontent.com/${{ github.repository }}/main/manifest.json
+          ```
+          
+          ### Checksums
+          - MD5: ${{ steps.checksum.outputs.checksum }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

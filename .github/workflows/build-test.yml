@@ -1,0 +1,35 @@
+name: Build Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Test build artifacts
+      run: |
+        if [ ! -f "bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.dll" ]; then
+          echo "Build failed - DLL not found"
+          exit 1
+        fi
+        echo "Build successful!"
+
