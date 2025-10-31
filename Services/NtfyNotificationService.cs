@@ -29,6 +29,8 @@ namespace Jellyfin.Plugin.NtfyNotifier.Services
             {
                 var url = $"{serverUrl.TrimEnd('/')}/{topic}";
                 
+                _logger.LogInformation("Sending notification to: {Url}", url);
+                
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Content = new StringContent(message, Encoding.UTF8, "text/plain");
                 
@@ -54,17 +56,18 @@ namespace Jellyfin.Plugin.NtfyNotifier.Services
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation("Successfully sent notification to ntfy topic: {Topic}", topic);
+                    _logger.LogInformation("Successfully sent notification to ntfy. URL: {Url}, Topic: {Topic}", url, topic);
                 }
                 else
                 {
-                    _logger.LogWarning("Failed to send notification to ntfy. Status code: {StatusCode}, Reason: {Reason}", 
-                        response.StatusCode, response.ReasonPhrase);
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to send notification to ntfy. URL: {Url}, Status: {StatusCode}, Reason: {Reason}, Body: {Body}", 
+                        url, response.StatusCode, response.ReasonPhrase, responseBody);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending notification to ntfy");
+                _logger.LogError(ex, "Error sending notification to ntfy. Server: {ServerUrl}, Topic: {Topic}", serverUrl, topic);
             }
         }
     }
