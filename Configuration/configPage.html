@@ -45,7 +45,7 @@
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtMovieFormat">Movie Format:</label>
                         <input id="txtMovieFormat" name="txtMovieFormat" type="text" is="emby-input" />
-                        <div class="fieldDescription">Example: {title} ({year}) or 🎬 {title} ({year})</div>
+                        <div class="fieldDescription">Example: {title} ({year})</div>
                     </div>
 
                     <div class="inputContainer">
@@ -159,18 +159,18 @@
                     resultDiv.style.display = 'block';
                     
                     if (result.success) {
-                        resultDiv.innerHTML = '✅ ' + result.message;
+                        resultDiv.innerHTML = result.message;
                         resultDiv.style.backgroundColor = '#4CAF50';
                         resultDiv.style.color = 'white';
                     } else {
-                        resultDiv.innerHTML = '❌ ' + result.message;
+                        resultDiv.innerHTML = result.message;
                         resultDiv.style.backgroundColor = '#f44336';
                         resultDiv.style.color = 'white';
                     }
                 }).catch(function (error) {
                     Dashboard.hideLoadingMsg();
                     resultDiv.style.display = 'block';
-                    resultDiv.innerHTML = '❌ Error: ' + error.message;
+                    resultDiv.innerHTML = 'Error: ' + error.message;
                     resultDiv.style.backgroundColor = '#f44336';
                     resultDiv.style.color = 'white';
                 });

@@ -86,7 +86,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 {
                     // Fallback to default test message if no media found
                     title = "Test Notification";
-                    message = "🎉 Your Jellyfin Ntfy Notifier is working correctly!";
+                    message = "Your Jellyfin Ntfy Notifier is working correctly!";
                     tags = "white_check_mark,jellyfin";
                     _logger.LogInformation("No media items found, sending default test notification");
                 }

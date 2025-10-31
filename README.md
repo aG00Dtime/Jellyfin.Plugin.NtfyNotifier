@@ -50,8 +50,6 @@ Customize your notification messages with format strings:
 **Episodes**: `{series} - S{season:00}E{episode:00}: {name}`  
 **Music**: `{track} - {artist}`
 
-Add emojis if you want: `🎬 {title} ({year})`
-
 Available placeholders: `{title}`, `{year}`, `{series}`, `{season}`, `{episode}`, `{name}`, `{track}`, `{artist}`, `{album}`
 
 ## License
@@ -62,6 +60,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 <div align="center">
 
-Made with ❤️ for the Jellyfin community
+Made for the Jellyfin community
 
 </div>
