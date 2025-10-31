@@ -19,15 +19,18 @@ namespace Jellyfin.Plugin.NtfyNotifier
     public class Notifier : ILibraryPostScanTask
     {
         private readonly ILibraryManager _libraryManager;
+        private readonly IServerApplicationHost _applicationHost;
         private readonly ILogger<Notifier> _logger;
         private readonly NtfyNotificationService _notificationService;
 
         public Notifier(
             ILibraryManager libraryManager,
+            IServerApplicationHost applicationHost,
             ILogger<Notifier> logger,
             ILoggerFactory loggerFactory)
         {
             _libraryManager = libraryManager;
+            _applicationHost = applicationHost;
             _logger = logger;
             _notificationService = new NtfyNotificationService(loggerFactory.CreateLogger<NtfyNotificationService>());
             
@@ -95,6 +98,7 @@ namespace Jellyfin.Plugin.NtfyNotifier
             // Build notification message
             string message = BuildNotificationMessage(item);
             string tags = GetTagsForMediaType(item);
+            string? imageUrl = config.EnableThumbnails ? GetImageUrl(item) : null;
 
             // Send notification
             Task.Run(async () =>
@@ -108,7 +112,8 @@ namespace Jellyfin.Plugin.NtfyNotifier
                         config.NotificationTitle,
                         message,
                         tags,
-                        priority: 3
+                        priority: 3,
+                        imageUrl: imageUrl
                     );
                 }
                 catch (Exception ex)
@@ -142,6 +147,27 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 Audio => "musical_note,music",
                 _ => "file_folder"
             };
+        }
+
+        private string? GetImageUrl(BaseItem item)
+        {
+            try
+            {
+                if (!item.HasImage(MediaBrowser.Model.Entities.ImageType.Primary))
+                {
+                    return null;
+                }
+
+                // Get the local URL for the image
+                var imageUrl = $"{_applicationHost.GetApiUrlForLocalAccess()}/Items/{item.Id}/Images/Primary?maxWidth=600&quality=90";
+                
+                return imageUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to get image URL for item: {ItemName}", item.Name);
+                return null;
+            }
         }
 
     }

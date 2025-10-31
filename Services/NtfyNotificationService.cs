@@ -17,7 +17,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Services
             _httpClient = new HttpClient();
         }
 
-        public async Task SendNotificationAsync(string serverUrl, string topic, string? accessToken, string title, string message, string? tags = null, int? priority = null)
+        public async Task SendNotificationAsync(string serverUrl, string topic, string? accessToken, string title, string message, string? tags = null, int? priority = null, string? imageUrl = null)
         {
             try
             {
@@ -42,6 +42,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Services
                 if (priority.HasValue)
                 {
                     request.Headers.Add("Priority", priority.Value.ToString());
+                }
+                
+                if (!string.IsNullOrWhiteSpace(imageUrl))
+                {
+                    request.Headers.Add("Attach", imageUrl);
                 }
 
                 var response = await _httpClient.SendAsync(request);
