@@ -125,7 +125,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 Series series => FormatMovieMessage(series, config.MovieFormat),
                 MusicAlbum album => FormatMusicMessage(album, config.MusicFormat),
                 Audio audio => FormatAudioMessage(audio, config.MusicFormat),
-                _ => $"📁 {item.Name}"
+                _ => item.Name
             };
         }
 
