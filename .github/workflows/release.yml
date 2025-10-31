@@ -21,6 +21,19 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Get version from tag
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Update .csproj version
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>$VERSION.0<\/AssemblyVersion>/" Jellyfin.Plugin.NtfyNotifier.csproj
+        sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>$VERSION.0<\/FileVersion>/" Jellyfin.Plugin.NtfyNotifier.csproj
+
     - name: Restore dependencies
       run: dotnet restore
 
@@ -39,13 +52,6 @@ jobs:
         CHECKSUM=$(md5sum bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.zip | awk '{print $1}')
         echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
         echo "Checksum: $CHECKSUM"
-
-    - name: Get version from tag
-      id: version
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "Version: $VERSION"
 
     - name: Update manifest.json
       run: |
@@ -78,12 +84,12 @@ jobs:
         ]
         EOF
 
-    - name: Commit and push manifest.json
+    - name: Commit and push version files
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add manifest.json
-        git commit -m "Update manifest.json for version ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+        git add manifest.json Jellyfin.Plugin.NtfyNotifier.csproj
+        git commit -m "Update manifest and csproj for version ${{ steps.version.outputs.version }}" || echo "No changes to commit"
         git push origin HEAD:main || echo "Nothing to push"
 
     - name: Create Release
