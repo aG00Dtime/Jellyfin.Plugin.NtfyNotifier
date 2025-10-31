@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.NtfyNotifier.Configuration;
@@ -105,14 +104,6 @@ namespace Jellyfin.Plugin.NtfyNotifier
             {
                 try
                 {
-                    byte[]? imageData = null;
-                    string? imageFilename = null;
-                    
-                    if (config.EnableThumbnails)
-                    {
-                        (imageData, imageFilename) = await GetImageDataAsync(item);
-                    }
-
                     await _notificationService.SendNotificationAsync(
                         config.NtfyServerUrl,
                         config.NtfyTopic,
@@ -120,9 +111,7 @@ namespace Jellyfin.Plugin.NtfyNotifier
                         config.NotificationTitle,
                         message,
                         tags,
-                        priority: 3,
-                        imageData: imageData,
-                        imageFilename: imageFilename
+                        priority: 3
                     );
                 }
                 catch (Exception ex)
@@ -156,31 +145,6 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 Audio => "musical_note,music",
                 _ => "file_folder"
             };
-        }
-
-        private async Task<(byte[]? data, string? filename)> GetImageDataAsync(BaseItem item)
-        {
-            try
-            {
-                if (!item.HasImage(MediaBrowser.Model.Entities.ImageType.Primary))
-                {
-                    return (null, null);
-                }
-
-                var imageUrl = $"{_applicationHost.GetApiUrlForLocalAccess()}/Items/{item.Id}/Images/Primary?maxWidth=600&quality=90";
-                
-                using var httpClient = new System.Net.Http.HttpClient();
-                var imageData = await httpClient.GetByteArrayAsync(imageUrl);
-                
-                var filename = $"{item.Name.Replace("/", "-").Replace("\\", "-")}.jpg";
-                
-                return (imageData, filename);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to download image for item: {ItemName}", item.Name);
-                return (null, null);
-            }
         }
 
     }

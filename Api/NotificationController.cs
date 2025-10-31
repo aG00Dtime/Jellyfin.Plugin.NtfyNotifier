@@ -69,8 +69,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 string title;
                 string message;
                 string tags;
-                byte[]? imageData = null;
-                string? imageFilename = null;
 
                 if (mediaItems.Count > 0)
                 {
@@ -81,11 +79,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     title = config.NotificationTitle;
                     message = BuildNotificationMessage(randomItem);
                     tags = GetTagsForMediaType(randomItem);
-                    
-                    if (config.EnableThumbnails)
-                    {
-                        (imageData, imageFilename) = await GetImageDataAsync(randomItem);
-                    }
 
                     _logger.LogInformation("Sending test notification for item: {ItemName}", randomItem.Name);
                 }
@@ -105,9 +98,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     title,
                     message,
                     tags,
-                    priority: 3,
-                    imageData: imageData,
-                    imageFilename: imageFilename
+                    priority: 3
                 );
 
                 return Ok(new { success = true, message = "Test notification sent successfully!" });
@@ -143,31 +134,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 Audio => "musical_note,music",
                 _ => "file_folder"
             };
-        }
-
-        private async Task<(byte[]? data, string? filename)> GetImageDataAsync(BaseItem item)
-        {
-            try
-            {
-                if (!item.HasImage(MediaBrowser.Model.Entities.ImageType.Primary))
-                {
-                    return (null, null);
-                }
-
-                var imageUrl = $"{_applicationHost.GetApiUrlForLocalAccess()}/Items/{item.Id}/Images/Primary?maxWidth=600&quality=90";
-                
-                using var httpClient = new System.Net.Http.HttpClient();
-                var imageData = await httpClient.GetByteArrayAsync(imageUrl);
-                
-                var filename = $"{item.Name.Replace("/", "-").Replace("\\", "-")}.jpg";
-                
-                return (imageData, filename);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to download image for item: {ItemName}", item.Name);
-                return (null, null);
-            }
         }
     }
 }
