@@ -123,35 +123,87 @@ namespace Jellyfin.Plugin.NtfyNotifier
 
         private string BuildNotificationMessage(BaseItem item)
         {
+            var config = Plugin.Instance?.Configuration;
+            if (config == null)
+            {
+                return item.Name;
+            }
+
             return item switch
             {
-                Movie movie => $"New Media Added\n🎬 {movie.Name} ({movie.ProductionYear})",
-                Episode episode => BuildEpisodeMessage(episode),
-                Series series => $"New Media Added\n📺 {series.Name} ({series.ProductionYear})",
-                MusicAlbum album => $"New Media Added\n🎵 {album.Name} - {album.AlbumArtist}",
-                Audio audio => $"New Media Added\n🎵 {audio.Name} - {audio.Artists?.FirstOrDefault()}",
-                _ => $"New Media Added\n📁 {item.Name}"
+                Movie movie => FormatMovieMessage(movie, config.MovieFormat),
+                Episode episode => FormatEpisodeMessage(episode, config.EpisodeFormat),
+                Series series => FormatMovieMessage(series, config.MovieFormat), // Use movie format for series
+                MusicAlbum album => FormatMusicMessage(album, config.MusicFormat),
+                Audio audio => FormatAudioMessage(audio, config.MusicFormat),
+                _ => $"📁 {item.Name}"
             };
         }
 
-        private string BuildEpisodeMessage(Episode episode)
+        private string FormatMovieMessage(BaseItem item, string format)
         {
-            var seriesName = episode.SeriesName ?? "Unknown Series";
-            var episodeName = episode.Name ?? "Episode";
-            
-            // Handle cases where season/episode numbers might be null (common with anime)
+            return format
+                .Replace("{emoji}", "🎬")
+                .Replace("{title}", item.Name ?? "Unknown")
+                .Replace("{year}", item.ProductionYear?.ToString() ?? "Unknown");
+        }
+
+        private string FormatEpisodeMessage(Episode episode, string format)
+        {
+            var result = format
+                .Replace("{emoji}", "📺")
+                .Replace("{series}", episode.SeriesName ?? "Unknown Series")
+                .Replace("{name}", episode.Name ?? "Episode");
+
+            // Handle season/episode number formatting
             if (episode.ParentIndexNumber.HasValue && episode.IndexNumber.HasValue)
             {
-                return $"New Media Added\n📺 {seriesName} - S{episode.ParentIndexNumber:00}E{episode.IndexNumber:00}: {episodeName}";
+                result = result
+                    .Replace("{season:00}", episode.ParentIndexNumber.Value.ToString("00"))
+                    .Replace("{season}", episode.ParentIndexNumber.Value.ToString())
+                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("00"))
+                    .Replace("{episode}", episode.IndexNumber.Value.ToString());
             }
             else if (episode.IndexNumber.HasValue)
             {
-                return $"New Media Added\n📺 {seriesName} - E{episode.IndexNumber:00}: {episodeName}";
+                result = result
+                    .Replace("{season:00}", "")
+                    .Replace("{season}", "")
+                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("00"))
+                    .Replace("{episode}", episode.IndexNumber.Value.ToString())
+                    .Replace("S - ", "") // Clean up leftover formatting
+                    .Replace("S: ", "");
             }
             else
             {
-                return $"New Media Added\n📺 {seriesName} - {episodeName}";
+                result = result
+                    .Replace("{season:00}", "")
+                    .Replace("{season}", "")
+                    .Replace("{episode:00}", "")
+                    .Replace("{episode}", "")
+                    .Replace("S - E: ", "") // Clean up leftover formatting
+                    .Replace("SE: ", "");
             }
+
+            return result;
+        }
+
+        private string FormatMusicMessage(MusicAlbum album, string format)
+        {
+            return format
+                .Replace("{emoji}", "🎵")
+                .Replace("{album}", album.Name ?? "Unknown Album")
+                .Replace("{artist}", album.AlbumArtist ?? "Unknown Artist")
+                .Replace("{track}", album.Name ?? "Unknown Album");
+        }
+
+        private string FormatAudioMessage(Audio audio, string format)
+        {
+            return format
+                .Replace("{emoji}", "🎵")
+                .Replace("{track}", audio.Name ?? "Unknown Track")
+                .Replace("{artist}", audio.Artists?.FirstOrDefault() ?? "Unknown Artist")
+                .Replace("{album}", audio.Album ?? "Unknown Album");
         }
 
         private string GetTagsForMediaType(BaseItem item)
