@@ -35,8 +35,12 @@ git push -u origin main
 # Build the plugin
 ./build.sh
 
-# Calculate MD5 checksum for the DLL
-md5sum bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.dll
+# Create ZIP file
+cd bin/Release/net8.0
+zip -j Jellyfin.Plugin.NtfyNotifier.zip Jellyfin.Plugin.NtfyNotifier.dll
+
+# Calculate MD5 checksum for the ZIP
+md5 -q Jellyfin.Plugin.NtfyNotifier.zip
 ```
 
 ## Step 4: Create GitHub Release
@@ -46,26 +50,15 @@ md5sum bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.dll
 3. Tag version: `v1.0.0`
 4. Release title: `v1.0.0 - Initial Release`
 5. Description: Copy the changelog from manifest.json
-6. Upload the file: `bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.dll`
+6. Upload the file: `bin/Release/net8.0/Jellyfin.Plugin.NtfyNotifier.zip`
 7. Publish release
 
-## Step 5: Update repository.json
+## Step 5: Verify repository.json
 
-1. After creating the release, get the direct download URL:
-   - Right-click the DLL in the release
-   - Copy link address
-   - Should look like: `https://github.com/YOUR_USERNAME/Jellyfin.Plugin.NtfyNotifier/releases/download/v1.0.0/Jellyfin.Plugin.NtfyNotifier.dll`
+The repository.json should already be updated with:
+   - The correct GitHub URL pointing to the ZIP file
+   - The MD5 checksum of the ZIP file
 
-2. Edit `repository.json` and update:
-   - Replace `YOUR_USERNAME` with your GitHub username
-   - Replace `WILL_BE_GENERATED_AFTER_BUILD` with the MD5 checksum from Step 3
-
-3. Commit and push the updated repository.json:
-   ```bash
-   git add repository.json
-   git commit -m "Update repository.json with release URL and checksum"
-   git push
-   ```
 
 ## Step 6: Get Your Repository JSON URL
 
@@ -88,12 +81,13 @@ https://raw.githubusercontent.com/YOUR_USERNAME/Jellyfin.Plugin.NtfyNotifier/mai
 
 If you don't want to set up the repository, you can still install manually:
 
-1. Download the DLL from GitHub releases
-2. Copy to your Jellyfin plugins directory:
+1. Download the ZIP from GitHub releases
+2. Extract the DLL from the ZIP
+3. Copy the DLL to your Jellyfin plugins directory:
    - Linux: `~/.local/share/jellyfin/plugins/NtfyNotifier/`
    - Windows: `%AppData%\Jellyfin\plugins\NtfyNotifier\`
    - Docker: `/config/plugins/NtfyNotifier/`
-3. Restart Jellyfin
+4. Restart Jellyfin
 
 ## For Future Updates
 
