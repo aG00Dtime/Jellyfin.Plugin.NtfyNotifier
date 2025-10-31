@@ -46,9 +46,11 @@ Enable the media types you want (Movies, TV, Music) and click **Send Test Notifi
 
 Customize your notification messages with format strings:
 
-**Movies**: `🎬 {title} ({year})`  
-**Episodes**: `📺 {series} - S{season:00}E{episode:00}: {name}`  
-**Music**: `🎵 {track} - {artist}`
+**Movies**: `{title} ({year})`  
+**Episodes**: `{series} - S{season:00}E{episode:00}: {name}`  
+**Music**: `{track} - {artist}`
+
+Add emojis if you want: `🎬 {title} ({year})`
 
 Available placeholders: `{title}`, `{year}`, `{series}`, `{season}`, `{episode}`, `{name}`, `{track}`, `{artist}`, `{album}`
 
