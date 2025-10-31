@@ -14,7 +14,13 @@ namespace Jellyfin.Plugin.NtfyNotifier.Services
         public NtfyNotificationService(ILogger<NtfyNotificationService> logger)
         {
             _logger = logger;
-            _httpClient = new HttpClient();
+            
+            // Create HttpClient that accepts self-signed certificates
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true
+            };
+            _httpClient = new HttpClient(handler);
         }
 
         public async Task SendNotificationAsync(string serverUrl, string topic, string? accessToken, string title, string message, string? tags = null, int? priority = null)
