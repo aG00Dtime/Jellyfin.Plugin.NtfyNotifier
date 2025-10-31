@@ -114,12 +114,12 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         {
             return item switch
             {
-                Movie movie => $"🎬 {movie.Name} ({movie.ProductionYear})",
-                Episode episode => $"📺 {episode.SeriesName} - S{episode.ParentIndexNumber:00}E{episode.IndexNumber:00} - {episode.Name}",
-                Series series => $"📺 {series.Name} ({series.ProductionYear})",
-                MusicAlbum album => $"🎵 {album.Name} - {album.AlbumArtist}",
-                Audio audio => $"🎵 {audio.Name} - {audio.Artists?.FirstOrDefault()}",
-                _ => $"📁 {item.Name}"
+                Movie movie => $"🎬 New Movie Added\n\n{movie.Name}\n({movie.ProductionYear})",
+                Episode episode => $"📺 New Episode\n\n{episode.SeriesName}\nS{episode.ParentIndexNumber:00}E{episode.IndexNumber:00}: {episode.Name}",
+                Series series => $"📺 New Series\n\n{series.Name}\n({series.ProductionYear})",
+                MusicAlbum album => $"🎵 New Album\n\n{album.Name}\n{album.AlbumArtist}",
+                Audio audio => $"🎵 New Track\n\n{audio.Name}\n{audio.Artists?.FirstOrDefault()}",
+                _ => $"📁 New Item\n\n{item.Name}"
             };
         }
 
