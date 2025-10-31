@@ -115,12 +115,32 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
             return item switch
             {
                 Movie movie => $"New Media Added\n🎬 {movie.Name} ({movie.ProductionYear})",
-                Episode episode => $"New Media Added\n📺 {episode.SeriesName} - S{episode.ParentIndexNumber:00}E{episode.IndexNumber:00}: {episode.Name}",
+                Episode episode => BuildEpisodeMessage(episode),
                 Series series => $"New Media Added\n📺 {series.Name} ({series.ProductionYear})",
                 MusicAlbum album => $"New Media Added\n🎵 {album.Name} - {album.AlbumArtist}",
                 Audio audio => $"New Media Added\n🎵 {audio.Name} - {audio.Artists?.FirstOrDefault()}",
                 _ => $"New Media Added\n📁 {item.Name}"
             };
+        }
+
+        private string BuildEpisodeMessage(Episode episode)
+        {
+            var seriesName = episode.SeriesName ?? "Unknown Series";
+            var episodeName = episode.Name ?? "Episode";
+            
+            // Handle cases where season/episode numbers might be null (common with anime)
+            if (episode.ParentIndexNumber.HasValue && episode.IndexNumber.HasValue)
+            {
+                return $"New Media Added\n📺 {seriesName} - S{episode.ParentIndexNumber:00}E{episode.IndexNumber:00}: {episodeName}";
+            }
+            else if (episode.IndexNumber.HasValue)
+            {
+                return $"New Media Added\n📺 {seriesName} - E{episode.IndexNumber:00}: {episodeName}";
+            }
+            else
+            {
+                return $"New Media Added\n📺 {seriesName} - {episodeName}";
+            }
         }
 
         private string GetTagsForMediaType(BaseItem item)
