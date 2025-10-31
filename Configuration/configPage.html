@@ -36,27 +36,28 @@
                     <h2>Custom Notification Formats</h2>
                     <div class="fieldDescription" style="margin-bottom: 1em;">
                         Available placeholders:<br>
-                        Movies: {emoji}, {title}, {year}<br>
-                        Episodes: {emoji}, {series}, {season}, {season:00}, {episode}, {episode:00}, {name}<br>
-                        Music: {emoji}, {track}, {artist}, {album}
+                        Movies: {title}, {year}<br>
+                        Episodes: {series}, {season}, {season:00}, {episode}, {episode:00}, {name}<br>
+                        Music: {track}, {artist}, {album}<br>
+                        You can add your own text and emojis anywhere in the format string.
                     </div>
 
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtMovieFormat">Movie Format:</label>
                         <input id="txtMovieFormat" name="txtMovieFormat" type="text" is="emby-input" />
-                        <div class="fieldDescription">Example: {emoji} {title} ({year})</div>
+                        <div class="fieldDescription">Example: 🎬 {title} ({year})</div>
                     </div>
 
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtEpisodeFormat">Episode Format:</label>
                         <input id="txtEpisodeFormat" name="txtEpisodeFormat" type="text" is="emby-input" />
-                        <div class="fieldDescription">Example: {emoji} {series} - S{season:00}E{episode:00}: {name}</div>
+                        <div class="fieldDescription">Example: 📺 {series} - S{season:00}E{episode:00}: {name}</div>
                     </div>
 
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtMusicFormat">Music Format:</label>
                         <input id="txtMusicFormat" name="txtMusicFormat" type="text" is="emby-input" />
-                        <div class="fieldDescription">Example: {emoji} {track} - {artist}</div>
+                        <div class="fieldDescription">Example: 🎵 {track} - {artist}</div>
                     </div>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
@@ -108,9 +109,9 @@
                     document.getElementById('txtNtfyTopic').value = config.NtfyTopic || '';
                     document.getElementById('txtNtfyAccessToken').value = config.NtfyAccessToken || '';
                     document.getElementById('txtNotificationTitle').value = config.NotificationTitle || 'New Media Added';
-                    document.getElementById('txtMovieFormat').value = config.MovieFormat || '{emoji} {title} ({year})';
-                    document.getElementById('txtEpisodeFormat').value = config.EpisodeFormat || '{emoji} {series} - S{season:00}E{episode:00}: {name}';
-                    document.getElementById('txtMusicFormat').value = config.MusicFormat || '{emoji} {track} - {artist}';
+                    document.getElementById('txtMovieFormat').value = config.MovieFormat || '🎬 {title} ({year})';
+                    document.getElementById('txtEpisodeFormat').value = config.EpisodeFormat || '📺 {series} - S{season:00}E{episode:00}: {name}';
+                    document.getElementById('txtMusicFormat').value = config.MusicFormat || '🎵 {track} - {artist}';
                     document.getElementById('chkEnableMovieNotifications').checked = config.EnableMovieNotifications;
                     document.getElementById('chkEnableSeriesNotifications').checked = config.EnableSeriesNotifications;
                     document.getElementById('chkEnableMusicNotifications').checked = config.EnableMusicNotifications;

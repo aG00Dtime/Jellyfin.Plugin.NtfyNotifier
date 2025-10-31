@@ -12,9 +12,9 @@ namespace Jellyfin.Plugin.NtfyNotifier.Configuration
             EnableSeriesNotifications = true;
             EnableMusicNotifications = true;
             NotificationTitle = "New Media Added";
-            MovieFormat = "{emoji} {title} ({year})";
-            EpisodeFormat = "{emoji} {series} - S{season:00}E{episode:00}: {name}";
-            MusicFormat = "{emoji} {track} - {artist}";
+            MovieFormat = "🎬 {title} ({year})";
+            EpisodeFormat = "📺 {series} - S{season:00}E{episode:00}: {name}";
+            MusicFormat = "🎵 {track} - {artist}";
         }
 
         public string NtfyServerUrl { get; set; }

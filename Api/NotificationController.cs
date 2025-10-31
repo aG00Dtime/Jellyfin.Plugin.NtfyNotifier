@@ -132,7 +132,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         private string FormatMovieMessage(BaseItem item, string format)
         {
             return format
-                .Replace("{emoji}", "🎬")
                 .Replace("{title}", item.Name ?? "Unknown")
                 .Replace("{year}", item.ProductionYear?.ToString() ?? "Unknown");
         }
@@ -140,7 +139,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         private string FormatEpisodeMessage(Episode episode, string format)
         {
             var result = format
-                .Replace("{emoji}", "📺")
                 .Replace("{series}", episode.SeriesName ?? "Unknown Series")
                 .Replace("{name}", episode.Name ?? "Episode");
 
@@ -180,7 +178,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         private string FormatMusicMessage(MusicAlbum album, string format)
         {
             return format
-                .Replace("{emoji}", "🎵")
                 .Replace("{album}", album.Name ?? "Unknown Album")
                 .Replace("{artist}", album.AlbumArtist ?? "Unknown Artist")
                 .Replace("{track}", album.Name ?? "Unknown Album");
@@ -189,7 +186,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         private string FormatAudioMessage(Audio audio, string format)
         {
             return format
-                .Replace("{emoji}", "🎵")
                 .Replace("{track}", audio.Name ?? "Unknown Track")
                 .Replace("{artist}", audio.Artists?.FirstOrDefault() ?? "Unknown Artist")
                 .Replace("{album}", audio.Album ?? "Unknown Album");
