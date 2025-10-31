@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.NtfyNotifier.Configuration;
@@ -98,13 +99,20 @@ namespace Jellyfin.Plugin.NtfyNotifier
             // Build notification message
             string message = BuildNotificationMessage(item);
             string tags = GetTagsForMediaType(item);
-            string? imageUrl = config.EnableThumbnails ? GetImageUrl(item) : null;
 
             // Send notification
             Task.Run(async () =>
             {
                 try
                 {
+                    byte[]? imageData = null;
+                    string? imageFilename = null;
+                    
+                    if (config.EnableThumbnails)
+                    {
+                        (imageData, imageFilename) = await GetImageDataAsync(item);
+                    }
+
                     await _notificationService.SendNotificationAsync(
                         config.NtfyServerUrl,
                         config.NtfyTopic,
@@ -113,7 +121,8 @@ namespace Jellyfin.Plugin.NtfyNotifier
                         message,
                         tags,
                         priority: 3,
-                        imageUrl: imageUrl
+                        imageData: imageData,
+                        imageFilename: imageFilename
                     );
                 }
                 catch (Exception ex)
@@ -149,24 +158,28 @@ namespace Jellyfin.Plugin.NtfyNotifier
             };
         }
 
-        private string? GetImageUrl(BaseItem item)
+        private async Task<(byte[]? data, string? filename)> GetImageDataAsync(BaseItem item)
         {
             try
             {
                 if (!item.HasImage(MediaBrowser.Model.Entities.ImageType.Primary))
                 {
-                    return null;
+                    return (null, null);
                 }
 
-                // Get the local URL for the image
                 var imageUrl = $"{_applicationHost.GetApiUrlForLocalAccess()}/Items/{item.Id}/Images/Primary?maxWidth=600&quality=90";
                 
-                return imageUrl;
+                using var httpClient = new System.Net.Http.HttpClient();
+                var imageData = await httpClient.GetByteArrayAsync(imageUrl);
+                
+                var filename = $"{item.Name.Replace("/", "-").Replace("\\", "-")}.jpg";
+                
+                return (imageData, filename);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to get image URL for item: {ItemName}", item.Name);
-                return null;
+                _logger.LogWarning(ex, "Failed to download image for item: {ItemName}", item.Name);
+                return (null, null);
             }
         }
 

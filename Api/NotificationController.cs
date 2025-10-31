@@ -69,7 +69,8 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 string title;
                 string message;
                 string tags;
-                string? imageUrl = null;
+                byte[]? imageData = null;
+                string? imageFilename = null;
 
                 if (mediaItems.Count > 0)
                 {
@@ -80,7 +81,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     title = config.NotificationTitle;
                     message = BuildNotificationMessage(randomItem);
                     tags = GetTagsForMediaType(randomItem);
-                    imageUrl = config.EnableThumbnails ? GetImageUrl(randomItem) : null;
+                    
+                    if (config.EnableThumbnails)
+                    {
+                        (imageData, imageFilename) = await GetImageDataAsync(randomItem);
+                    }
 
                     _logger.LogInformation("Sending test notification for item: {ItemName}", randomItem.Name);
                 }
@@ -101,7 +106,8 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     message,
                     tags,
                     priority: 3,
-                    imageUrl: imageUrl
+                    imageData: imageData,
+                    imageFilename: imageFilename
                 );
 
                 return Ok(new { success = true, message = "Test notification sent successfully!" });
@@ -139,23 +145,28 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
             };
         }
 
-        private string? GetImageUrl(BaseItem item)
+        private async Task<(byte[]? data, string? filename)> GetImageDataAsync(BaseItem item)
         {
             try
             {
                 if (!item.HasImage(MediaBrowser.Model.Entities.ImageType.Primary))
                 {
-                    return null;
+                    return (null, null);
                 }
 
                 var imageUrl = $"{_applicationHost.GetApiUrlForLocalAccess()}/Items/{item.Id}/Images/Primary?maxWidth=600&quality=90";
                 
-                return imageUrl;
+                using var httpClient = new System.Net.Http.HttpClient();
+                var imageData = await httpClient.GetByteArrayAsync(imageUrl);
+                
+                var filename = $"{item.Name.Replace("/", "-").Replace("\\", "-")}.jpg";
+                
+                return (imageData, filename);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to get image URL for item: {ItemName}", item.Name);
-                return null;
+                _logger.LogWarning(ex, "Failed to download image for item: {ItemName}", item.Name);
+                return (null, null);
             }
         }
     }
