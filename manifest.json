@@ -9,12 +9,12 @@
     "imageUrl": "https://raw.githubusercontent.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/main/icon.png",
     "versions": [
       {
-        "version": "1.0.6.0",
-        "changelog": "Release 1.0.6",
+        "version": "1.0.7.0",
+        "changelog": "Release 1.0.7",
         "targetAbi": "10.9.0.0",
-        "sourceUrl": "https://github.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/releases/download/v1.0.6/Jellyfin.Plugin.NtfyNotifier.zip",
-        "checksum": "51bf98e6c6c1c622ab2d2d9797861a64",
-        "timestamp": "2025-10-31T14:11:01Z"
+        "sourceUrl": "https://github.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/releases/download/v1.0.7/Jellyfin.Plugin.NtfyNotifier.zip",
+        "checksum": "cf041ae1c3239721302d3771decc1ef8",
+        "timestamp": "2025-10-31T14:18:39Z"
       }
     ]
   }
