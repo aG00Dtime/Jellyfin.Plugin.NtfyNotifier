@@ -33,3 +33,7 @@ Dashboard → Plugins → Ntfy Notifier
 ## Requirements
 
 - Jellyfin 10.9.0+
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details
