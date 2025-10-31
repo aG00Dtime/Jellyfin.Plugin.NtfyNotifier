@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.NtfyNotifier.Services;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Entities;
@@ -60,7 +61,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 // Get a random media item from the library
                 var mediaItems = _libraryManager.GetItemList(new InternalItemsQuery
                 {
-                    IncludeItemTypes = new[] { nameof(Movie), nameof(Episode), nameof(Audio), nameof(MusicAlbum) },
+                    IncludeItemTypes = new[] { BaseItemKind.Movie, BaseItemKind.Episode, BaseItemKind.Audio, BaseItemKind.MusicAlbum },
                     IsVirtualItem = false,
                     Recursive = true
                 }).ToList();
