@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.NtfyNotifier.Configuration;
 using Jellyfin.Plugin.NtfyNotifier.Services;
@@ -10,12 +11,12 @@ using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Entities.Audio;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Plugins;
+using MediaBrowser.Model.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.NtfyNotifier
 {
-    public class Notifier : IServerEntryPoint
+    public class Notifier : ILibraryPostScanTask
     {
         private readonly ILibraryManager _libraryManager;
         private readonly ILogger<Notifier> _logger;
@@ -29,12 +30,20 @@ namespace Jellyfin.Plugin.NtfyNotifier
             _libraryManager = libraryManager;
             _logger = logger;
             _notificationService = new NtfyNotificationService(loggerFactory.CreateLogger<NtfyNotificationService>());
+            
+            // Subscribe to ItemAdded event
+            _libraryManager.ItemAdded += OnItemAdded;
+            _logger.LogInformation("Ntfy Notifier initialized");
         }
 
-        public Task RunAsync()
+        public string Name => "Ntfy Notification Task";
+        public string Key => "NtfyNotificationTask";
+        public string Description => "Send notifications to ntfy when media is added";
+        public string Category => "Library";
+
+        public Task Run(IProgress<double> progress, CancellationToken cancellationToken)
         {
-            _libraryManager.ItemAdded += OnItemAdded;
-            _logger.LogInformation("Ntfy Notifier started");
+            // This task doesn't do anything on scheduled runs
             return Task.CompletedTask;
         }
 
@@ -124,20 +133,6 @@ namespace Jellyfin.Plugin.NtfyNotifier
             };
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _libraryManager.ItemAdded -= OnItemAdded;
-                _logger.LogInformation("Ntfy Notifier stopped");
-            }
-        }
     }
 }
 
