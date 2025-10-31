@@ -13,8 +13,8 @@
         "changelog": "Release 1.2.0",
         "targetAbi": "10.9.0.0",
         "sourceUrl": "https://github.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/releases/download/v1.2.0/Jellyfin.Plugin.NtfyNotifier.zip",
-        "checksum": "db81e6e57d0d14229e79508754aafee3",
-        "timestamp": "2025-10-31T16:41:51Z"
+        "checksum": "6bf6741661f0f10d5850bae0771761f6",
+        "timestamp": "2025-10-31T16:48:11Z"
       }
     ]
   }
