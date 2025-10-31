@@ -63,6 +63,7 @@ jobs:
             "overview": "Get instant notifications via ntfy.sh when movies, TV shows, or music are added",
             "owner": "davidhenry",
             "category": "Notifications",
+            "imageUrl": "https://raw.githubusercontent.com/${{ github.repository }}/main/icon.png",
             "versions": [
               {
                 "version": "$VERSION.0",
