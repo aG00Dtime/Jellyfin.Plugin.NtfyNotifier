@@ -12,7 +12,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Configuration
             EnableSeriesNotifications = true;
             EnableMusicNotifications = true;
             NotificationTitle = "New Media Added";
-            EnableThumbnails = true;
         }
 
         public string NtfyServerUrl { get; set; }
@@ -22,7 +21,6 @@ namespace Jellyfin.Plugin.NtfyNotifier.Configuration
         public bool EnableSeriesNotifications { get; set; }
         public bool EnableMusicNotifications { get; set; }
         public string NotificationTitle { get; set; }
-        public bool EnableThumbnails { get; set; }
     }
 }
 

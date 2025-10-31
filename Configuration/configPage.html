@@ -54,14 +54,6 @@
                         </label>
                     </div>
 
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label>
-                            <input id="chkEnableThumbnails" name="chkEnableThumbnails" type="checkbox" is="emby-checkbox" />
-                            <span>Include Media Thumbnails</span>
-                        </label>
-                        <div class="fieldDescription">Attach poster/cover images to notifications</div>
-                    </div>
-
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block">
                             <span>Save</span>
@@ -93,7 +85,6 @@
                     document.getElementById('chkEnableMovieNotifications').checked = config.EnableMovieNotifications;
                     document.getElementById('chkEnableSeriesNotifications').checked = config.EnableSeriesNotifications;
                     document.getElementById('chkEnableMusicNotifications').checked = config.EnableMusicNotifications;
-                    document.getElementById('chkEnableThumbnails').checked = config.EnableThumbnails;
                     Dashboard.hideLoadingMsg();
                 });
             });
@@ -108,7 +99,6 @@
                     config.EnableMovieNotifications = document.getElementById('chkEnableMovieNotifications').checked;
                     config.EnableSeriesNotifications = document.getElementById('chkEnableSeriesNotifications').checked;
                     config.EnableMusicNotifications = document.getElementById('chkEnableMusicNotifications').checked;
-                    config.EnableThumbnails = document.getElementById('chkEnableThumbnails').checked;
                     
                     ApiClient.updatePluginConfiguration(NtfyNotifierConfig.pluginUniqueId, config).then(function (result) {
                         Dashboard.processPluginConfigurationUpdateResult(result);
