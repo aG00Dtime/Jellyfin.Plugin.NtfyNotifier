@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Ntfy Notifier</title>
+</head>
+<body>
+    <div id="NtfyNotifierConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="NtfyNotifierConfigForm">
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtNtfyServerUrl">Ntfy Server URL:</label>
+                        <input id="txtNtfyServerUrl" name="txtNtfyServerUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">Default: https://ntfy.sh (or use your self-hosted instance)</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtNtfyTopic">Ntfy Topic:</label>
+                        <input id="txtNtfyTopic" name="txtNtfyTopic" type="text" is="emby-input" required />
+                        <div class="fieldDescription">The topic to publish notifications to</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtNtfyAccessToken">Access Token (optional):</label>
+                        <input id="txtNtfyAccessToken" name="txtNtfyAccessToken" type="password" is="emby-input" />
+                        <div class="fieldDescription">Leave blank if topic is public</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtNotificationTitle">Notification Title:</label>
+                        <input id="txtNotificationTitle" name="txtNotificationTitle" type="text" is="emby-input" />
+                        <div class="fieldDescription">Title for notifications</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="chkEnableMovieNotifications" name="chkEnableMovieNotifications" type="checkbox" is="emby-checkbox" />
+                            <span>Enable Movie Notifications</span>
+                        </label>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="chkEnableSeriesNotifications" name="chkEnableSeriesNotifications" type="checkbox" is="emby-checkbox" />
+                            <span>Enable TV Series Notifications</span>
+                        </label>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input id="chkEnableMusicNotifications" name="chkEnableMusicNotifications" type="checkbox" is="emby-checkbox" />
+                            <span>Enable Music Notifications</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var NtfyNotifierConfig = {
+                pluginUniqueId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+            };
+
+            document.getElementById('NtfyNotifierConfigPage').addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(NtfyNotifierConfig.pluginUniqueId).then(function (config) {
+                    document.getElementById('txtNtfyServerUrl').value = config.NtfyServerUrl || 'https://ntfy.sh';
+                    document.getElementById('txtNtfyTopic').value = config.NtfyTopic || '';
+                    document.getElementById('txtNtfyAccessToken').value = config.NtfyAccessToken || '';
+                    document.getElementById('txtNotificationTitle').value = config.NotificationTitle || 'New Media Added';
+                    document.getElementById('chkEnableMovieNotifications').checked = config.EnableMovieNotifications;
+                    document.getElementById('chkEnableSeriesNotifications').checked = config.EnableSeriesNotifications;
+                    document.getElementById('chkEnableMusicNotifications').checked = config.EnableMusicNotifications;
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            document.getElementById('NtfyNotifierConfigForm').addEventListener('submit', function (e) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(NtfyNotifierConfig.pluginUniqueId).then(function (config) {
+                    config.NtfyServerUrl = document.getElementById('txtNtfyServerUrl').value;
+                    config.NtfyTopic = document.getElementById('txtNtfyTopic').value;
+                    config.NtfyAccessToken = document.getElementById('txtNtfyAccessToken').value;
+                    config.NotificationTitle = document.getElementById('txtNotificationTitle').value;
+                    config.EnableMovieNotifications = document.getElementById('chkEnableMovieNotifications').checked;
+                    config.EnableSeriesNotifications = document.getElementById('chkEnableSeriesNotifications').checked;
+                    config.EnableMusicNotifications = document.getElementById('chkEnableMusicNotifications').checked;
+                    
+                    ApiClient.updatePluginConfiguration(NtfyNotifierConfig.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+                e.preventDefault();
+                return false;
+            });
+        </script>
+    </div>
+</body>
+</html>
+

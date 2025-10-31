@@ -1,0 +1,21 @@
+[
+  {
+    "guid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Ntfy Notifier",
+    "description": "Send notifications to ntfy when new media is added to your Jellyfin library",
+    "overview": "Get instant notifications via ntfy.sh when movies, TV shows, or music are added",
+    "owner": "davidhenry",
+    "category": "Notifications",
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "Initial release\n- Movie notifications\n- TV Series notifications\n- Music notifications\n- Configurable ntfy server\n- Support for public and authenticated topics",
+        "targetAbi": "10.9.0.0",
+        "sourceUrl": "https://github.com/aG00Dtime/Jellyfin.Plugin.NtfyNotifier/releases/download/v1.0.0/Jellyfin.Plugin.NtfyNotifier.dll",
+        "checksum": "WILL_BE_GENERATED_AFTER_BUILD",
+        "timestamp": "2025-10-31T00:00:00Z"
+      }
+    ]
+  }
+]
+
