@@ -44,52 +44,80 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         {
             try
             {
+                _logger.LogInformation("Test notification endpoint called");
+
                 if (Plugin.Instance == null)
                 {
+                    _logger.LogError("Plugin.Instance is null");
                     return BadRequest(new { success = false, message = "Plugin not initialized" });
                 }
 
                 var config = Plugin.Instance.Configuration;
+                _logger.LogInformation("Configuration loaded");
 
                 if (string.IsNullOrWhiteSpace(config.NtfyTopic))
                 {
+                    _logger.LogWarning("Ntfy topic is not configured");
                     return BadRequest(new { success = false, message = "Ntfy topic is not configured" });
                 }
 
-                _logger.LogInformation("Sending test notification to topic: {Topic}", config.NtfyTopic);
-
-                // Get a random media item from the library
-                var mediaItems = _libraryManager.GetItemList(new InternalItemsQuery
+                if (string.IsNullOrWhiteSpace(config.NtfyServerUrl))
                 {
-                    IncludeItemTypes = new[] { BaseItemKind.Movie, BaseItemKind.Episode, BaseItemKind.Audio, BaseItemKind.MusicAlbum },
-                    IsVirtualItem = false,
-                    Recursive = true
-                }).ToList();
+                    _logger.LogWarning("Ntfy server URL is not configured");
+                    return BadRequest(new { success = false, message = "Ntfy server URL is not configured" });
+                }
+
+                _logger.LogInformation("Sending test notification to topic: {Topic}", config.NtfyTopic);
 
                 string title;
                 string message;
                 string tags;
 
-                if (mediaItems.Count > 0)
+                try
                 {
-                    // Pick a random item
-                    var random = new Random();
-                    var randomItem = mediaItems[random.Next(mediaItems.Count)];
+                    // Try to get a random media item from the library
+                    _logger.LogInformation("Querying library for media items");
+                    var mediaItems = _libraryManager.GetItemList(new InternalItemsQuery
+                    {
+                        IncludeItemTypes = new[] { BaseItemKind.Movie, BaseItemKind.Episode, BaseItemKind.Audio, BaseItemKind.MusicAlbum },
+                        IsVirtualItem = false,
+                        Recursive = true,
+                        Limit = 50
+                    }).ToList();
 
-                    title = config.NotificationTitle;
-                    message = BuildNotificationMessage(randomItem);
-                    tags = GetTagsForMediaType(randomItem);
+                    _logger.LogInformation("Found {Count} media items", mediaItems.Count);
 
-                    _logger.LogInformation("Sending test notification for item: {ItemName}", randomItem.Name);
+                    if (mediaItems.Count > 0)
+                    {
+                        // Pick a random item
+                        var random = new Random();
+                        var randomItem = mediaItems[random.Next(mediaItems.Count)];
+
+                        title = config.NotificationTitle ?? "New Media Added";
+                        message = BuildNotificationMessage(randomItem);
+                        tags = GetTagsForMediaType(randomItem);
+
+                        _logger.LogInformation("Sending test notification for item: {ItemName}", randomItem.Name);
+                    }
+                    else
+                    {
+                        // Fallback to default test message if no media found
+                        title = "Test Notification";
+                        message = "Your Jellyfin Ntfy Notifier is working correctly!";
+                        tags = "white_check_mark,jellyfin";
+                        _logger.LogInformation("No media items found, sending default test notification");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Fallback to default test message if no media found
+                    _logger.LogError(ex, "Error querying library, using default test message");
+                    // Fallback to default test message
                     title = "Test Notification";
                     message = "Your Jellyfin Ntfy Notifier is working correctly!";
                     tags = "white_check_mark,jellyfin";
-                    _logger.LogInformation("No media items found, sending default test notification");
                 }
+
+                _logger.LogInformation("Calling notification service with title: {Title}, message: {Message}", title, message);
 
                 await _notificationService.SendNotificationAsync(
                     config.NtfyServerUrl,
@@ -101,6 +129,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     priority: 3
                 );
 
+                _logger.LogInformation("Test notification sent successfully");
                 return Ok(new { success = true, message = "Test notification sent successfully!" });
             }
             catch (Exception ex)
