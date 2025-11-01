@@ -131,6 +131,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
 
         private string FormatMovieMessage(BaseItem item, string format)
         {
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                format = "{title} ({year})";
+            }
+
             return format
                 .Replace("{title}", item.Name ?? "Unknown")
                 .Replace("{year}", item.ProductionYear?.ToString() ?? "Unknown");
@@ -138,6 +143,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
 
         private string FormatEpisodeMessage(Episode episode, string format)
         {
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                format = "{series} - S{season:00}E{episode:00}: {name}";
+            }
+
             var result = format
                 .Replace("{series}", episode.SeriesName ?? "Unknown Series")
                 .Replace("{name}", episode.Name ?? "Episode");
@@ -146,9 +156,9 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
             if (episode.ParentIndexNumber.HasValue && episode.IndexNumber.HasValue)
             {
                 result = result
-                    .Replace("{season:00}", episode.ParentIndexNumber.Value.ToString("00"))
+                    .Replace("{season:00}", episode.ParentIndexNumber.Value.ToString("D2"))
                     .Replace("{season}", episode.ParentIndexNumber.Value.ToString())
-                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("00"))
+                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("D2"))
                     .Replace("{episode}", episode.IndexNumber.Value.ToString());
             }
             else if (episode.IndexNumber.HasValue)
@@ -156,7 +166,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 result = result
                     .Replace("{season:00}", "")
                     .Replace("{season}", "")
-                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("00"))
+                    .Replace("{episode:00}", episode.IndexNumber.Value.ToString("D2"))
                     .Replace("{episode}", episode.IndexNumber.Value.ToString())
                     .Replace("S - ", "")
                     .Replace("S: ", "");
@@ -177,6 +187,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
 
         private string FormatMusicMessage(MusicAlbum album, string format)
         {
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                format = "{track} - {artist}";
+            }
+
             return format
                 .Replace("{album}", album.Name ?? "Unknown Album")
                 .Replace("{artist}", album.AlbumArtist ?? "Unknown Artist")
@@ -185,6 +200,11 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
 
         private string FormatAudioMessage(Audio audio, string format)
         {
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                format = "{track} - {artist}";
+            }
+
             return format
                 .Replace("{track}", audio.Name ?? "Unknown Track")
                 .Replace("{artist}", audio.Artists?.FirstOrDefault() ?? "Unknown Artist")
