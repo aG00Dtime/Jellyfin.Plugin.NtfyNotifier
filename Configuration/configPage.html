@@ -152,10 +152,16 @@
                     headers: {
                         'X-Emby-Token': ApiClient.accessToken()
                     }
-                }).then(function (response) {
+                }).then(async function (response) {
+                    Dashboard.hideLoadingMsg();
+                    
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error('Server error: ' + response.status + ' ' + text);
+                    }
+                    
                     return response.json();
                 }).then(function (result) {
-                    Dashboard.hideLoadingMsg();
                     resultDiv.style.display = 'block';
                     
                     if (result.success) {
