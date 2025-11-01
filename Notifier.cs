@@ -52,17 +52,22 @@ namespace Jellyfin.Plugin.NtfyNotifier
 
         private void OnItemAdded(object? sender, ItemChangeEventArgs e)
         {
+            _logger.LogInformation("OnItemAdded event fired");
+
             // Ignore if plugin instance is not available
             if (Plugin.Instance == null)
             {
+                _logger.LogWarning("Plugin.Instance is null, ignoring item");
                 return;
             }
 
             var item = e.Item;
+            _logger.LogInformation("Item added: {ItemName} (Type: {ItemType})", item.Name, item.GetType().Name);
             
             // Ignore virtual items, folders, etc.
             if (item.IsVirtualItem || item is Folder)
             {
+                _logger.LogDebug("Ignoring virtual item or folder: {ItemName}", item.Name);
                 return;
             }
 
@@ -73,25 +78,31 @@ namespace Jellyfin.Plugin.NtfyNotifier
             bool isEpisode = item is Episode;
             bool isMusic = item is Audio || item is MusicAlbum;
 
+            _logger.LogInformation("Item type check - Movie: {IsMovie}, Episode: {IsEpisode}, Music: {IsMusic}", isMovie, isEpisode, isMusic);
+
             // Ignore if not a media type we care about
             if (!isMovie && !isEpisode && !isMusic)
             {
+                _logger.LogDebug("Item type not supported for notifications: {ItemType}", item.GetType().Name);
                 return;
             }
 
             // Check if notifications are enabled for this media type
             if (isMovie && !config.EnableMovieNotifications)
             {
+                _logger.LogInformation("Movie notifications disabled, skipping: {ItemName}", item.Name);
                 return;
             }
             
             if (isEpisode && !config.EnableSeriesNotifications)
             {
+                _logger.LogInformation("Series notifications disabled, skipping: {ItemName}", item.Name);
                 return;
             }
             
             if (isMusic && !config.EnableMusicNotifications)
             {
+                _logger.LogInformation("Music notifications disabled, skipping: {ItemName}", item.Name);
                 return;
             }
 
@@ -99,11 +110,16 @@ namespace Jellyfin.Plugin.NtfyNotifier
             string message = BuildNotificationMessage(item);
             string tags = GetTagsForMediaType(item);
 
+            _logger.LogInformation("Sending notification for: {ItemName}, Message: {Message}", item.Name, message);
+
             // Send notification
             Task.Run(async () =>
             {
                 try
                 {
+                    _logger.LogInformation("Calling SendNotificationAsync - Server: {Server}, Topic: {Topic}, Title: {Title}", 
+                        config.NtfyServerUrl, config.NtfyTopic, config.NotificationTitle);
+
                     await _notificationService.SendNotificationAsync(
                         config.NtfyServerUrl,
                         config.NtfyTopic,
@@ -113,6 +129,8 @@ namespace Jellyfin.Plugin.NtfyNotifier
                         tags,
                         priority: 3
                     );
+
+                    _logger.LogInformation("Notification sent successfully for: {ItemName}", item.Name);
                 }
                 catch (Exception ex)
                 {
