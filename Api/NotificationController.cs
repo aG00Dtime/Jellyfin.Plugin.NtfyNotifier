@@ -10,6 +10,7 @@ using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Entities.Audio;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
+using Jellyfin.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -67,7 +68,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 _logger.LogInformation("Sending test notification to topic: {Topic}", config.NtfyTopic);
 
                 // Get a random media item from the library
-                BaseItem testItem = GetRandomMediaItem();
+                BaseItem? testItem = GetRandomMediaItem();
                 string message;
                 string tags;
 
@@ -118,9 +119,9 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 {
                     IncludeItemTypes = new[] 
                     { 
-                        MediaBrowser.Model.Entities.BaseItemKind.Movie, 
-                        MediaBrowser.Model.Entities.BaseItemKind.Episode,
-                        MediaBrowser.Model.Entities.BaseItemKind.Audio
+                        BaseItemKind.Movie, 
+                        BaseItemKind.Episode,
+                        BaseItemKind.Audio
                     },
                     IsVirtualItem = false,
                     Limit = 1000
