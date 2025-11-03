@@ -109,7 +109,7 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
             }
         }
 
-        private BaseItem GetRandomMediaItem()
+        private BaseItem? GetRandomMediaItem()
         {
             try
             {
@@ -118,9 +118,9 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                 {
                     IncludeItemTypes = new[] 
                     { 
-                        BaseItemKind.Movie, 
-                        BaseItemKind.Episode,
-                        BaseItemKind.Audio
+                        MediaBrowser.Model.Entities.BaseItemKind.Movie, 
+                        MediaBrowser.Model.Entities.BaseItemKind.Episode,
+                        MediaBrowser.Model.Entities.BaseItemKind.Audio
                     },
                     IsVirtualItem = false,
                     Limit = 1000
