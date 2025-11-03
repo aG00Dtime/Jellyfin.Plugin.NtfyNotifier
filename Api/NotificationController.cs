@@ -114,8 +114,8 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
         {
             try
             {
-                // Query for movies, episodes, and audio items
-                var allItems = _libraryManager.GetItemList(new InternalItemsQuery
+                // Query for movies, episodes, and audio items using GetItemsResult
+                var query = new InternalItemsQuery
                 {
                     IncludeItemTypes = new[] 
                     { 
@@ -125,9 +125,12 @@ namespace Jellyfin.Plugin.NtfyNotifier.Api
                     },
                     IsVirtualItem = false,
                     Limit = 1000
-                });
+                };
 
-                if (allItems.Count == 0)
+                var result = _libraryManager.GetItemsResult(query);
+                var allItems = result.Items;
+
+                if (allItems == null || allItems.Count == 0)
                 {
                     return null;
                 }
