@@ -151,7 +151,9 @@ namespace Jellyfin.Plugin.NtfyNotifier
             {
                 Movie movie => FormatMovieMessage(movie, config.MovieFormat),
                 Episode episode => FormatEpisodeMessage(episode, config.EpisodeFormat),
-                Series series => FormatMovieMessage(series, config.MovieFormat), // Use movie format for series
+                // Series notifications only show series name (no episode details)
+                // Individual episodes trigger their own notifications with episode info
+                Series series => FormatMovieMessage(series, config.MovieFormat),
                 MusicAlbum album => FormatMusicMessage(album, config.MusicFormat),
                 Audio audio => FormatAudioMessage(audio, config.MusicFormat),
                 _ => item.Name
@@ -177,15 +179,29 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 format = "{series} - S{season:00}E{episode:00}: {name}";
             }
 
-            // Try to get series name from multiple sources
-            string seriesName = episode.SeriesName 
-                ?? episode.Series?.Name 
-                ?? episode.FindParent<Series>()?.Name 
-                ?? "Unknown Series";
+            // Use the proper Jellyfin API method to get series name
+            string seriesName = episode.FindSeriesName() ?? "Unknown Series";
+
+            // Get episode name and remove series name prefix if present
+            // episode.Name might include the series name, so we strip it
+            string episodeName = episode.Name ?? "Episode";
+            if (!string.IsNullOrWhiteSpace(seriesName) && !seriesName.Equals("Unknown Series", StringComparison.OrdinalIgnoreCase))
+            {
+                // If episode name equals series name exactly, use a fallback
+                if (episodeName.Equals(seriesName, StringComparison.OrdinalIgnoreCase))
+                {
+                    episodeName = "Episode";
+                }
+                // Remove series name prefix if present (handles various separators)
+                else if (episodeName.StartsWith(seriesName, StringComparison.OrdinalIgnoreCase))
+                {
+                    episodeName = episodeName.Substring(seriesName.Length).TrimStart(' ', '-', ':');
+                }
+            }
 
             var result = format
                 .Replace("{series}", seriesName)
-                .Replace("{name}", episode.Name ?? "Episode");
+                .Replace("{name}", episodeName);
 
             // Handle season/episode number formatting
             if (episode.ParentIndexNumber.HasValue && episode.IndexNumber.HasValue)
@@ -227,10 +243,27 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 format = "{track} - {artist}";
             }
 
+            // Use AlbumArtist property which returns the first album artist
+            string artistName = album.AlbumArtist ?? "Unknown Artist";
+            
+            // Remove artist name from album name if present
+            string albumName = album.Name ?? "Unknown Album";
+            if (!string.IsNullOrWhiteSpace(artistName) && !artistName.Equals("Unknown Artist", StringComparison.OrdinalIgnoreCase))
+            {
+                if (albumName.Equals(artistName, StringComparison.OrdinalIgnoreCase))
+                {
+                    albumName = "Unknown Album";
+                }
+                else if (albumName.StartsWith(artistName, StringComparison.OrdinalIgnoreCase))
+                {
+                    albumName = albumName.Substring(artistName.Length).TrimStart(' ', '-', ':');
+                }
+            }
+
             return format
-                .Replace("{album}", album.Name ?? "Unknown Album")
-                .Replace("{artist}", album.AlbumArtist ?? "Unknown Artist")
-                .Replace("{track}", album.Name ?? "Unknown Album");
+                .Replace("{album}", albumName)
+                .Replace("{artist}", artistName)
+                .Replace("{track}", albumName); // For MusicAlbum, track is the same as album name
         }
 
         private string FormatAudioMessage(Audio audio, string format)
@@ -240,10 +273,36 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 format = "{track} - {artist}";
             }
 
+            // Prefer AlbumArtist over Artists for consistency
+            string artistName = audio.AlbumArtists?.FirstOrDefault() 
+                ?? audio.Artists?.FirstOrDefault() 
+                ?? "Unknown Artist";
+            
+            // Get album name from Album property or AlbumEntity
+            string albumName = audio.Album 
+                ?? audio.AlbumEntity?.Name 
+                ?? "Unknown Album";
+            
+            // Get track name and remove artist name prefix if present
+            string trackName = audio.Name ?? "Unknown Track";
+            if (!string.IsNullOrWhiteSpace(artistName) && !artistName.Equals("Unknown Artist", StringComparison.OrdinalIgnoreCase))
+            {
+                // If track name equals artist name exactly, use a fallback
+                if (trackName.Equals(artistName, StringComparison.OrdinalIgnoreCase))
+                {
+                    trackName = "Unknown Track";
+                }
+                // Remove artist name prefix if present (handles various separators)
+                else if (trackName.StartsWith(artistName, StringComparison.OrdinalIgnoreCase))
+                {
+                    trackName = trackName.Substring(artistName.Length).TrimStart(' ', '-', ':');
+                }
+            }
+
             return format
-                .Replace("{track}", audio.Name ?? "Unknown Track")
-                .Replace("{artist}", audio.Artists?.FirstOrDefault() ?? "Unknown Artist")
-                .Replace("{album}", audio.Album ?? "Unknown Album");
+                .Replace("{track}", trackName)
+                .Replace("{artist}", artistName)
+                .Replace("{album}", albumName);
         }
 
         private string GetTagsForMediaType(BaseItem item)
