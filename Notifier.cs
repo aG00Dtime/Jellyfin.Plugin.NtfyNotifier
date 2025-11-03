@@ -177,8 +177,14 @@ namespace Jellyfin.Plugin.NtfyNotifier
                 format = "{series} - S{season:00}E{episode:00}: {name}";
             }
 
+            // Try to get series name from multiple sources
+            string seriesName = episode.SeriesName 
+                ?? episode.Series?.Name 
+                ?? episode.FindParent<Series>()?.Name 
+                ?? "Unknown Series";
+
             var result = format
-                .Replace("{series}", episode.SeriesName ?? "Unknown Series")
+                .Replace("{series}", seriesName)
                 .Replace("{name}", episode.Name ?? "Episode");
 
             // Handle season/episode number formatting
