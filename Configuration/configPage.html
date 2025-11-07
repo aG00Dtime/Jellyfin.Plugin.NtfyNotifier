@@ -33,7 +33,7 @@
                         <div class="fieldDescription">Title for notifications</div>
                     </div>
 
-                    <h2>Custom Notification Formats</h2>
+                    <!-- <h2>Custom Notification Formats</h2>
                     <div class="fieldDescription" style="margin-bottom: 1em;">
                         Available placeholders:<br>
                         Movies: {title}, {year}<br>
@@ -58,7 +58,7 @@
                         <label class="inputLabel inputLabelUnfocused" for="txtMusicFormat">Music Format:</label>
                         <input id="txtMusicFormat" name="txtMusicFormat" type="text" is="emby-input" />
                         <div class="fieldDescription">Example: {track} - {artist}</div>
-                    </div>
+                    </div> -->
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label>
@@ -109,9 +109,9 @@
                     document.getElementById('txtNtfyTopic').value = config.NtfyTopic || '';
                     document.getElementById('txtNtfyAccessToken').value = config.NtfyAccessToken || '';
                     document.getElementById('txtNotificationTitle').value = config.NotificationTitle || 'New Media Added';
-                    document.getElementById('txtMovieFormat').value = config.MovieFormat || '{title} ({year})';
-                    document.getElementById('txtEpisodeFormat').value = config.EpisodeFormat || '{series} - S{season:00}E{episode:00}: {name}';
-                    document.getElementById('txtMusicFormat').value = config.MusicFormat || '{track} - {artist}';
+                    // document.getElementById('txtMovieFormat').value = config.MovieFormat || '{title} ({year})';
+                    // document.getElementById('txtEpisodeFormat').value = config.EpisodeFormat || '{series} - S{season:00}E{episode:00}: {name}';
+                    // document.getElementById('txtMusicFormat').value = config.MusicFormat || '{track} - {artist}';
                     document.getElementById('chkEnableMovieNotifications').checked = config.EnableMovieNotifications;
                     document.getElementById('chkEnableSeriesNotifications').checked = config.EnableSeriesNotifications;
                     document.getElementById('chkEnableMusicNotifications').checked = config.EnableMusicNotifications;
@@ -126,9 +126,9 @@
                     config.NtfyTopic = document.getElementById('txtNtfyTopic').value;
                     config.NtfyAccessToken = document.getElementById('txtNtfyAccessToken').value;
                     config.NotificationTitle = document.getElementById('txtNotificationTitle').value;
-                    config.MovieFormat = document.getElementById('txtMovieFormat').value;
-                    config.EpisodeFormat = document.getElementById('txtEpisodeFormat').value;
-                    config.MusicFormat = document.getElementById('txtMusicFormat').value;
+                    // config.MovieFormat = document.getElementById('txtMovieFormat').value;
+                    // config.EpisodeFormat = document.getElementById('txtEpisodeFormat').value;
+                    // config.MusicFormat = document.getElementById('txtMusicFormat').value;
                     config.EnableMovieNotifications = document.getElementById('chkEnableMovieNotifications').checked;
                     config.EnableSeriesNotifications = document.getElementById('chkEnableSeriesNotifications').checked;
                     config.EnableMusicNotifications = document.getElementById('chkEnableMusicNotifications').checked;

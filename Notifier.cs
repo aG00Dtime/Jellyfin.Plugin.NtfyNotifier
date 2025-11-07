@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,23 +142,13 @@ namespace Jellyfin.Plugin.NtfyNotifier
 
         private string BuildNotificationMessage(BaseItem item)
         {
-            var config = Plugin.Instance?.Configuration;
-            if (config == null)
+            var path = item.Path;
+            if (string.IsNullOrWhiteSpace(path))
             {
-                return item.Name;
+                return item.Name ?? "Unknown item";
             }
 
-            return item switch
-            {
-                Movie movie => FormatMovieMessage(movie, config.MovieFormat),
-                Episode episode => FormatEpisodeMessage(episode, config.EpisodeFormat),
-                // Series notifications only show series name (no episode details)
-                // Individual episodes trigger their own notifications with episode info
-                Series series => FormatMovieMessage(series, config.MovieFormat),
-                MusicAlbum album => FormatMusicMessage(album, config.MusicFormat),
-                Audio audio => FormatAudioMessage(audio, config.MusicFormat),
-                _ => item.Name
-            };
+            return Path.GetFileName(path) ?? item.Name ?? "Unknown item";
         }
 
         private string FormatMovieMessage(BaseItem item, string format)
