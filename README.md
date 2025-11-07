@@ -35,22 +35,18 @@ Send push notifications to your devices using [ntfy.sh](https://ntfy.sh) wheneve
 | **Topic** | Your unique topic name |
 | **Access Token** | Optional, for private topics |
 
-Enable the media types you want (Movies, TV, Music) and click **Send Test Notification** to verify.
+Enable the media types you want (Movies, TV, Music), set your preferred notification title, and click **Send Test Notification** to verify.
 
 ## Subscribe to Notifications
 
 - **Web**: https://ntfy.sh/your-topic
 - **Mobile**: Download the ntfy app ([iOS](https://apps.apple.com/app/ntfy/id1625396347) / [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy))
 
-## Custom Formats
+## Notification Output
 
-Customize your notification messages with format strings:
-
-**Movies**: `{title} ({year})`  
-**Episodes**: `{series} - S{season:00}E{episode:00}: {name}`  
-**Music**: `{track} - {artist}`
-
-Available placeholders: `{title}`, `{year}`, `{series}`, `{season}`, `{episode}`, `{name}`, `{track}`, `{artist}`, `{album}`
+- TV episodes: `[Series Name] - Episode Name`
+- Movies and music: the exact filename added to your library
+- Notification title: configurable from the plugin settings page
 
 ## License
 
